@@ -1,0 +1,6 @@
+{
+  "summary": "Plano de implementação arquitetural da Fase 0 para o aplicativo nativo Android agriia, estruturado com Clean Architecture, Jetpack Compose, Material 3, Room, DataStore, design system personalizado e etapas sequenciais de entrega.",
+  "updatedAt": "2026-10-14T14:03:45.720020343Z",
+  "requestFeedback": true,
+  "userFacing": true
+}

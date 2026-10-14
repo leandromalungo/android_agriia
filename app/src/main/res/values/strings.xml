@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">agriia</string>
+    <string name="splash_by_brand">by agriia</string>
+    <string name="greeting_morning">Bom dia, %1$s</string>
+    <string name="greeting_afternoon">Boa tarde, %1$s</string>
+    <string name="greeting_evening">Boa noite, %1$s</string>
+    <string name="greeting_morning_default">Bom dia</string>
+    <string name="greeting_afternoon_default">Boa tarde</string>
+    <string name="greeting_evening_default">Boa noite</string>
+    <string name="chat_input_placeholder">Conversar com agriia…</string>
+    <string name="model_selector_label">agriia 1.0 · Pensamento</string>
+    <string name="upgrade_banner_title">Tenha mais com o agriia Pro</string>
+    <string name="upgrade_banner_action">Migrar para Pro</string>
+    <string name="nav_conversations">Conversas</string>
+    <string name="nav_create_project">Criar projeto</string>
+    <string name="nav_artifacts">Artefatos</string>
+    <string name="nav_recent">Recentes</string>
+    <string name="nav_new_chat">Novo bate-papo</string>
+    <string name="menu_content_description">Abrir menu lateral</string>
+    <string name="temp_chat_content_description">Bate-papo temporário</string>
+    <string name="attach_content_description">Anexar arquivo ou imagem</string>
+    <string name="mic_content_description">Ditado por voz</string>
+    <string name="voice_mode_content_description">Modo de voz</string>
+    <string name="temp_chat_enabled_hint">Bate-papo temporário ativado. As mensagens não serão salvas no histórico.</string>
+    <string name="default_user_name">Leandro</string>
+    <string name="send_message_content_description">Enviar mensagem</string>
+    <string name="project_dialog_title">Criar novo projeto</string>
+    <string name="project_dialog_desc">Organize documentos, instruções e conversas focadas em um só lugar no agriia.</string>
+    <string name="artifacts_dialog_title">Seus Artefatos</string>
+    <string name="artifacts_dialog_desc">Visualize códigos, documentos e criações geradas nas conversas com a IA.</string>
+    <string name="close">Fechar</string>
+    <string name="ok">Entendi</string>
+</resources>

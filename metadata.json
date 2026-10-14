@@ -1,0 +1,6 @@
+{
+  "name": "agriia",
+  "description": "Cliente nativo de chat com inteligência artificial para Android com design minimalista e moderno.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,238 @@
+package com.agriia.app.feature.chat.ui
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.agriia.app.core.datastore.UserPreferencesRepository
+import com.agriia.app.feature.chat.domain.model.ChatMessage
+import com.agriia.app.feature.chat.domain.model.ChatRole
+import com.agriia.app.feature.chat.domain.repository.ChatRepository
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import java.util.UUID
+
+class ChatViewModel(
+    private val chatRepository: ChatRepository,
+    private val userPreferencesRepository: UserPreferencesRepository
+) : ViewModel() {
+
+    private val _uiState = MutableStateFlow(ChatUiState())
+    val uiState: StateFlow<ChatUiState> = _uiState.asStateFlow()
+
+    private var messagesJob: Job? = null
+    private var streamingJob: Job? = null
+
+    init {
+        // Observa preferências do usuário (Nome e Modelo)
+        viewModelScope.launch {
+            userPreferencesRepository.userNameFlow.collect { name ->
+                _uiState.update { it.copy(userName = name) }
+            }
+        }
+        viewModelScope.launch {
+            userPreferencesRepository.currentModelFlow.collect { model ->
+                _uiState.update { it.copy(currentModelName = model) }
+            }
+        }
+
+        // Carrega e observa histórico de conversas do Room
+        viewModelScope.launch {
+            chatRepository.seedInitialMockConversationsIfEmpty()
+            chatRepository.getRecentConversations().collect { list ->
+                _uiState.update { it.copy(conversations = list) }
+            }
+        }
+    }
+
+    fun onInputTextChange(text: String) {
+        _uiState.update { it.copy(inputText = text) }
+    }
+
+    fun onSelectConversation(conversationId: String) {
+        _uiState.update {
+            it.copy(
+                currentConversationId = conversationId,
+                isTemporaryChat = false
+            )
+        }
+        observeMessages(conversationId)
+    }
+
+    fun onStartNewChat() {
+        messagesJob?.cancel()
+        streamingJob?.cancel()
+        _uiState.update {
+            it.copy(
+                currentConversationId = null,
+                messages = emptyList(),
+                inputText = "",
+                isStreaming = false
+            )
+        }
+    }
+
+    fun onToggleTemporaryChat() {
+        val next = !_uiState.value.isTemporaryChat
+        _uiState.update {
+            it.copy(
+                isTemporaryChat = next,
+                toastMessage = if (next) "Bate-papo temporário ativado" else "Bate-papo normal ativado"
+            )
+        }
+    }
+
+    fun onDismissToast() {
+        _uiState.update { it.copy(toastMessage = null) }
+    }
+
+    fun onDismissUpgradeBanner() {
+        _uiState.update { it.copy(showUpgradeBanner = false) }
+    }
+
+    fun onShowProjectsDialog(show: Boolean) {
+        _uiState.update { it.copy(showProjectsDialog = show) }
+    }
+
+    fun onShowArtifactsDialog(show: Boolean) {
+        _uiState.update { it.copy(showArtifactsDialog = show) }
+    }
+
+    fun onShowModelSelectorDialog(show: Boolean) {
+        _uiState.update { it.copy(showModelSelectorDialog = show) }
+    }
+
+    fun onSelectModel(modelName: String) {
+        viewModelScope.launch {
+            userPreferencesRepository.updateCurrentModel(modelName)
+            _uiState.update {
+                it.copy(
+                    currentModelName = modelName,
+                    showModelSelectorDialog = false
+                )
+            }
+        }
+    }
+
+    fun onSendMessage(text: String) {
+        val trimmed = text.trim()
+        if (trimmed.isEmpty() || _uiState.value.isStreaming) return
+
+        _uiState.update { it.copy(inputText = "") }
+
+        viewModelScope.launch {
+            val isTemp = _uiState.value.isTemporaryChat
+            var conversationId = _uiState.value.currentConversationId
+
+            if (conversationId == null && !isTemp) {
+                // Cria nova conversa no Room com título extraído das primeiras palavras
+                val title = if (trimmed.length > 36) trimmed.take(36) + "..." else trimmed
+                val newConv = chatRepository.createConversation(
+                    title = title,
+                    modelName = _uiState.value.currentModelName
+                )
+                conversationId = newConv.id
+                _uiState.update { it.copy(currentConversationId = conversationId) }
+                observeMessages(conversationId)
+            }
+
+            val userMessage = ChatMessage(
+                id = UUID.randomUUID().toString(),
+                conversationId = conversationId ?: "temp_${System.currentTimeMillis()}",
+                role = ChatRole.USER,
+                content = trimmed,
+                timestamp = System.currentTimeMillis()
+            )
+
+            if (!isTemp && conversationId != null) {
+                chatRepository.saveMessage(userMessage)
+            } else {
+                _uiState.update {
+                    it.copy(messages = it.messages + userMessage)
+                }
+            }
+
+            // Inicia resposta streaming da IA
+            startAiStreaming(prompt = trimmed, convId = conversationId ?: userMessage.conversationId, isTemp = isTemp)
+        }
+    }
+
+    private fun startAiStreaming(prompt: String, convId: String, isTemp: Boolean) {
+        streamingJob?.cancel()
+        val assistantMessageId = UUID.randomUUID().toString()
+        val initialAssistantMessage = ChatMessage(
+            id = assistantMessageId,
+            conversationId = convId,
+            role = ChatRole.ASSISTANT,
+            content = "",
+            timestamp = System.currentTimeMillis(),
+            isStreaming = true
+        )
+
+        if (isTemp) {
+            _uiState.update {
+                it.copy(
+                    isStreaming = true,
+                    messages = it.messages + initialAssistantMessage
+                )
+            }
+        } else {
+            _uiState.update { it.copy(isStreaming = true) }
+        }
+
+        streamingJob = viewModelScope.launch {
+            val accumulated = StringBuilder()
+            chatRepository.streamAiResponse(prompt, convId).collect { chunk ->
+                accumulated.append(chunk)
+                if (isTemp) {
+                    _uiState.update { state ->
+                        state.copy(
+                            messages = state.messages.map { msg ->
+                                if (msg.id == assistantMessageId) {
+                                    msg.copy(content = accumulated.toString(), isStreaming = true)
+                                } else msg
+                            }
+                        )
+                    }
+                } else {
+                    val currentMsg = initialAssistantMessage.copy(
+                        content = accumulated.toString(),
+                        isStreaming = true
+                    )
+                    chatRepository.saveMessage(currentMsg)
+                }
+            }
+
+            // Finaliza streaming
+            if (!isTemp) {
+                val finalMsg = initialAssistantMessage.copy(
+                    content = accumulated.toString(),
+                    isStreaming = false
+                )
+                chatRepository.saveMessage(finalMsg)
+            } else {
+                _uiState.update { state ->
+                    state.copy(
+                        messages = state.messages.map { msg ->
+                            if (msg.id == assistantMessageId) {
+                                msg.copy(isStreaming = false)
+                            } else msg
+                        }
+                    )
+                }
+            }
+            _uiState.update { it.copy(isStreaming = false) }
+        }
+    }
+
+    private fun observeMessages(conversationId: String) {
+        messagesJob?.cancel()
+        messagesJob = viewModelScope.launch {
+            chatRepository.getMessagesForConversation(conversationId).collect { list ->
+                _uiState.update { it.copy(messages = list) }
+            }
+        }
+    }
+}
