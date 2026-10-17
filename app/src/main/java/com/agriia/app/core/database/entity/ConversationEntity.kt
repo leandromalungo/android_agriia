@@ -11,5 +11,6 @@ data class ConversationEntity(
     val createdAt: Long,
     val updatedAt: Long,
     val modelName: String = "agriia 1.0 · Pensamento",
+    val lastMessageSnippet: String? = null,
     val isPinned: Boolean = false
 )

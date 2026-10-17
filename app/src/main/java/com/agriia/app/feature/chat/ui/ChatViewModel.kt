@@ -74,6 +74,15 @@ class ChatViewModel(
         }
     }
 
+    fun onDeleteConversation(conversationId: String) {
+        viewModelScope.launch {
+            chatRepository.deleteConversation(conversationId)
+            if (_uiState.value.currentConversationId == conversationId) {
+                onStartNewChat()
+            }
+        }
+    }
+
     fun onToggleTemporaryChat() {
         val next = !_uiState.value.isTemporaryChat
         _uiState.update {

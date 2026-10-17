@@ -92,6 +92,9 @@ fun ChatScreen(
                 onSelectConversation = { convId ->
                     viewModel.onSelectConversation(convId)
                 },
+                onDeleteConversation = { convId ->
+                    viewModel.onDeleteConversation(convId)
+                },
                 onNewChatClick = {
                     viewModel.onStartNewChat()
                 },

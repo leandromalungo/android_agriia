@@ -10,7 +10,6 @@ import com.agriia.app.feature.chat.domain.model.Conversation
 import com.agriia.app.feature.chat.domain.repository.ChatRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import java.util.UUID
@@ -22,6 +21,12 @@ class ChatRepositoryImpl(
 
     override fun getRecentConversations(): Flow<List<Conversation>> {
         return conversationDao.getAllConversations().map { entities ->
+            entities.map { it.toDomain() }
+        }
+    }
+
+    override fun searchConversations(query: String): Flow<List<Conversation>> {
+        return conversationDao.searchConversations(query).map { entities ->
             entities.map { it.toDomain() }
         }
     }
@@ -43,7 +48,8 @@ class ChatRepositoryImpl(
             title = title,
             createdAt = now,
             updatedAt = now,
-            modelName = modelName
+            modelName = modelName,
+            lastMessageSnippet = null
         )
         conversationDao.insertConversation(entity)
         return entity.toDomain()
@@ -64,10 +70,17 @@ class ChatRepositoryImpl(
         )
         messageDao.insertMessage(entity)
 
-        // Atualiza timestamp da conversa
-        conversationDao.getConversationById(message.conversationId)?.let { conv ->
-            conversationDao.updateConversation(conv.copy(updatedAt = message.timestamp))
-        }
+        // Atualiza timestamp e resumo da conversa no Room
+        val snippet = if (message.content.isNotBlank()) message.content.take(60) else null
+        conversationDao.updateLastActivity(
+            id = message.conversationId,
+            updatedAt = message.timestamp,
+            lastSnippet = snippet
+        )
+    }
+
+    override suspend fun renameConversation(id: String, newTitle: String) {
+        conversationDao.updateTitle(id = id, newTitle = newTitle)
     }
 
     override suspend fun deleteConversation(id: String) {
@@ -75,23 +88,20 @@ class ChatRepositoryImpl(
     }
 
     override suspend fun seedInitialMockConversationsIfEmpty() {
-        // Remove quaisquer conversas mockadas pré-existentes para garantir que apenas
-        // interações e conversas reais do usuário sejam exibidas
+        // Exclui quaisquer dados mock antigos para preservar apenas as interações reais do usuário
         conversationDao.deleteMockConversations()
     }
 
     override fun streamAiResponse(prompt: String, conversationId: String): Flow<String> = flow {
         val simulatedText = buildString {
-            append("Olá! Recebi sua mensagem sobre \"")
-            append(prompt.take(40))
-            if (prompt.length > 40) append("...")
-            append("\".\n\nComo modelo agriia de pensamento analítico, aqui está uma análise estruturada para você:\n\n")
-            append("1. **Visão Geral**: Abordagem focada em simplicidade, eficiência e organização.\n")
-            append("2. **Sugestão Prática**: Recomendamos dividir o problema em etapas iterativas para manter a consistência e clareza.\n")
-            append("3. **Próximos Passos**: Posso gerar um rascunho completo, resumo ou checklist prático se desejar.")
+            append("Olá! Analisei sua solicitação sobre \"")
+            append(prompt.take(35))
+            if (prompt.length > 35) append("...")
+            append("\".\n\nComo modelo agriia de raciocínio lógico, aqui estão os pontos-chave:\n\n")
+            append("• **Fundamentação**: Abordagem estruturada com persistência local de dados no Room.\n")
+            append("• **Próxima Ação**: Você pode continuar essa conversa ou acessar o histórico completo a qualquer momento pelo menu lateral.")
         }
 
-        // Simulação fluida de digitação/streaming palavra por palavra
         val words = simulatedText.split(" ")
         for (word in words) {
             emit("$word ")
@@ -105,6 +115,7 @@ class ChatRepositoryImpl(
         createdAt = createdAt,
         updatedAt = updatedAt,
         modelName = modelName,
+        lastMessageSnippet = lastMessageSnippet,
         isPinned = isPinned
     )
 

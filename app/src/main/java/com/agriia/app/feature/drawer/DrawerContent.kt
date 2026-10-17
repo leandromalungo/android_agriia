@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
 import androidx.compose.material.icons.outlined.FolderSpecial
@@ -53,6 +54,7 @@ fun DrawerContent(
     currentConversationId: String?,
     userName: String,
     onSelectConversation: (String) -> Unit,
+    onDeleteConversation: ((String) -> Unit)? = null,
     onNewChatClick: () -> Unit,
     onCreateProjectClick: () -> Unit,
     onArtifactsClick: () -> Unit,
@@ -170,6 +172,9 @@ fun DrawerContent(
                             onClick = {
                                 onSelectConversation(conversation.id)
                                 onCloseDrawer()
+                            },
+                            onDelete = {
+                                onDeleteConversation?.invoke(conversation.id)
                             }
                         )
                     }
@@ -300,7 +305,8 @@ private fun DrawerMenuItem(
 private fun RecentConversationItem(
     conversation: Conversation,
     isSelected: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onDelete: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -311,7 +317,7 @@ private fun RecentConversationItem(
                 else MaterialTheme.colorScheme.background
             )
             .clickable(onClick = onClick)
-            .padding(horizontal = 12.dp, vertical = 10.dp)
+            .padding(horizontal = 12.dp, vertical = 6.dp)
             .testTag("recent_chat_${conversation.id}"),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -327,5 +333,17 @@ private fun RecentConversationItem(
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f)
         )
+
+        androidx.compose.material3.IconButton(
+            onClick = onDelete,
+            modifier = Modifier.size(28.dp)
+        ) {
+            Icon(
+                imageVector = androidx.compose.material.icons.Icons.Default.Clear,
+                contentDescription = "Excluir conversa",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                modifier = Modifier.size(16.dp)
+            )
+        }
     }
 }
