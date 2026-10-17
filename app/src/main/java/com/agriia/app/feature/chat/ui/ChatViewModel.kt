@@ -113,6 +113,28 @@ class ChatViewModel(
         _uiState.update { it.copy(showModelSelectorDialog = show) }
     }
 
+    fun onShowAttachmentSheet(show: Boolean) {
+        _uiState.update { it.copy(showAttachmentSheet = show) }
+    }
+
+    fun onShowMapDialog(show: Boolean) {
+        _uiState.update { it.copy(showMapDialog = show) }
+    }
+
+    fun onSelectAttachment(attachment: com.agriia.app.feature.chat.domain.model.ChatAttachment) {
+        _uiState.update {
+            it.copy(
+                pendingAttachment = attachment,
+                showAttachmentSheet = false,
+                toastMessage = "Anexo adicionado: ${attachment.title}"
+            )
+        }
+    }
+
+    fun onClearAttachment() {
+        _uiState.update { it.copy(pendingAttachment = null) }
+    }
+
     fun onSelectModel(modelName: String) {
         viewModelScope.launch {
             userPreferencesRepository.updateCurrentModel(modelName)
@@ -127,9 +149,14 @@ class ChatViewModel(
 
     fun onSendMessage(text: String) {
         val trimmed = text.trim()
-        if (trimmed.isEmpty() || _uiState.value.isStreaming) return
+        val currentAttachment = _uiState.value.pendingAttachment
+        if ((trimmed.isEmpty() && currentAttachment == null) || _uiState.value.isStreaming) return
 
-        _uiState.update { it.copy(inputText = "") }
+        val messageText = if (trimmed.isEmpty() && currentAttachment != null) {
+            "Anexo: ${currentAttachment.title}"
+        } else trimmed
+
+        _uiState.update { it.copy(inputText = "", pendingAttachment = null) }
 
         viewModelScope.launch {
             val isTemp = _uiState.value.isTemporaryChat
@@ -137,7 +164,7 @@ class ChatViewModel(
 
             if (conversationId == null && !isTemp) {
                 // Cria nova conversa no Room com título extraído das primeiras palavras
-                val title = if (trimmed.length > 36) trimmed.take(36) + "..." else trimmed
+                val title = if (messageText.length > 36) messageText.take(36) + "..." else messageText
                 val newConv = chatRepository.createConversation(
                     title = title,
                     modelName = _uiState.value.currentModelName
@@ -151,8 +178,10 @@ class ChatViewModel(
                 id = UUID.randomUUID().toString(),
                 conversationId = conversationId ?: "temp_${System.currentTimeMillis()}",
                 role = ChatRole.USER,
-                content = trimmed,
-                timestamp = System.currentTimeMillis()
+                content = messageText,
+                timestamp = System.currentTimeMillis(),
+                attachmentType = currentAttachment?.type?.name,
+                attachmentTitle = currentAttachment?.title
             )
 
             if (!isTemp && conversationId != null) {

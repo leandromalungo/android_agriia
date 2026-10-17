@@ -66,7 +66,9 @@ class ChatRepositoryImpl(
             content = message.content,
             timestamp = message.timestamp,
             isStreaming = message.isStreaming,
-            isError = message.isError
+            isError = message.isError,
+            attachmentType = message.attachmentType,
+            attachmentTitle = message.attachmentTitle
         )
         messageDao.insertMessage(entity)
 
@@ -126,6 +128,8 @@ class ChatRepositoryImpl(
         content = content,
         timestamp = timestamp,
         isStreaming = isStreaming,
-        isError = isError
+        isError = isError,
+        attachmentType = attachmentType,
+        attachmentTitle = attachmentTitle
     )
 }

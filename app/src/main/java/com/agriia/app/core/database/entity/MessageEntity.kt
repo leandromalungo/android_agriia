@@ -25,5 +25,7 @@ data class MessageEntity(
     val content: String,
     val timestamp: Long,
     val isStreaming: Boolean = false,
-    val isError: Boolean = false
+    val isError: Boolean = false,
+    val attachmentType: String? = null,
+    val attachmentTitle: String? = null
 )

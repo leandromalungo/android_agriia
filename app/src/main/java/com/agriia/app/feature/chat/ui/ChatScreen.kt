@@ -1,7 +1,12 @@
 package com.agriia.app.feature.chat.ui
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,7 +25,6 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
@@ -35,15 +39,18 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.agriia.app.core.designsystem.LimeSoft
 import com.agriia.app.core.designsystem.components.AgriiaChatInput
 import com.agriia.app.core.designsystem.components.AgriiaTopAppBar
 import com.agriia.app.feature.artifacts.ArtifactsDialog
+import com.agriia.app.feature.chat.domain.model.AttachmentType
+import com.agriia.app.feature.chat.domain.model.ChatAttachment
+import com.agriia.app.feature.chat.ui.components.AttachmentModalSheet
 import com.agriia.app.feature.chat.ui.components.GreetingHeader
+import com.agriia.app.feature.chat.ui.components.MapSelectorDialog
 import com.agriia.app.feature.chat.ui.components.MessageBubble
 import com.agriia.app.feature.chat.ui.components.ModelSelectorDialog
-import com.agriia.app.feature.chat.ui.components.UpgradeBanner
 import com.agriia.app.feature.drawer.DrawerContent
 import com.agriia.app.feature.projects.ProjectsDialog
 import com.example.R
@@ -60,6 +67,61 @@ fun ChatScreen(
     val context = LocalContext.current
     val listState = rememberLazyListState()
     val snackbarHostState = remember { SnackbarHostState() }
+
+    // Launcher 1: Seletor de imagens nativo do Android (Photo Picker sem permissões amplas)
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) {
+            viewModel.onSelectAttachment(
+                ChatAttachment(
+                    type = AttachmentType.IMAGE,
+                    title = "Foto da galeria",
+                    dataUri = uri.toString()
+                )
+            )
+        }
+    }
+
+    // Launcher 2: Seletor de documentos/ficheiros do sistema
+    val documentPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        if (uri != null) {
+            val fileName = uri.lastPathSegment?.substringAfterLast('/') ?: "documento.pdf"
+            viewModel.onSelectAttachment(
+                ChatAttachment(
+                    type = AttachmentType.FILE,
+                    title = fileName,
+                    dataUri = uri.toString()
+                )
+            )
+        }
+    }
+
+    // Launcher 3: Câmera (Tirar foto)
+    val takePictureLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicturePreview()
+    ) { bitmap ->
+        if (bitmap != null) {
+            viewModel.onSelectAttachment(
+                ChatAttachment(
+                    type = AttachmentType.CAMERA,
+                    title = "Foto da câmera"
+                )
+            )
+        }
+    }
+
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            takePictureLauncher.launch(null)
+        } else {
+            Toast.makeText(context, "Permissão de câmera necessária para tirar fotos", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     // Fecha o drawer com o botão voltar se estiver aberto
     BackHandler(enabled = drawerState.isOpen) {
@@ -143,7 +205,7 @@ fun ChatScreen(
                         onInputTextChange = viewModel::onInputTextChange,
                         onSendMessage = viewModel::onSendMessage,
                         onAttachClick = {
-                            Toast.makeText(context, "Selecione fotos, documentos ou dados", Toast.LENGTH_SHORT).show()
+                            viewModel.onShowAttachmentSheet(true)
                         },
                         onMicClick = {
                             Toast.makeText(context, "Ditado por voz ativado", Toast.LENGTH_SHORT).show()
@@ -154,7 +216,9 @@ fun ChatScreen(
                         currentModelName = uiState.currentModelName,
                         onModelSelectorClick = {
                             viewModel.onShowModelSelectorDialog(true)
-                        }
+                        },
+                        attachedItem = uiState.pendingAttachment,
+                        onRemoveAttachment = viewModel::onClearAttachment
                     )
                 }
             },
@@ -206,7 +270,52 @@ fun ChatScreen(
         }
     }
 
-    // Diálogos modais
+    // Modal Bottom Sheet de Anexos (+ clicado)
+    if (uiState.showAttachmentSheet) {
+        AttachmentModalSheet(
+            onDismiss = { viewModel.onShowAttachmentSheet(false) },
+            onPickFile = {
+                documentPickerLauncher.launch("*/*")
+            },
+            onPickImage = {
+                photoPickerLauncher.launch(
+                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                )
+            },
+            onTakePhoto = {
+                val hasPermission = ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.CAMERA
+                ) == PackageManager.PERMISSION_GRANTED
+                if (hasPermission) {
+                    takePictureLauncher.launch(null)
+                } else {
+                    cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+                }
+            },
+            onPickMap = {
+                viewModel.onShowMapDialog(true)
+            }
+        )
+    }
+
+    // Diálogo Seletor de Imagem do Mapa
+    if (uiState.showMapDialog) {
+        MapSelectorDialog(
+            onDismiss = { viewModel.onShowMapDialog(false) },
+            onMapSelected = { locationName, coords ->
+                viewModel.onSelectAttachment(
+                    ChatAttachment(
+                        type = AttachmentType.MAP,
+                        title = "$locationName ($coords)",
+                        subtitle = coords
+                    )
+                )
+            }
+        )
+    }
+
+    // Diálogos modais existentes
     if (uiState.showProjectsDialog) {
         ProjectsDialog(
             onDismiss = { viewModel.onShowProjectsDialog(false) },

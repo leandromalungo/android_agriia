@@ -14,7 +14,7 @@ import com.agriia.app.core.database.entity.MessageEntity
         ConversationEntity::class,
         MessageEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class AgriiaDatabase : RoomDatabase() {

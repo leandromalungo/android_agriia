@@ -20,13 +20,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Psychology
+import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.Image
+import androidx.compose.material.icons.outlined.Map
+import androidx.compose.material.icons.outlined.PhotoCamera
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -60,6 +67,8 @@ fun AgriiaChatInput(
     onVoiceModeClick: () -> Unit,
     currentModelName: String,
     onModelSelectorClick: () -> Unit,
+    attachedItem: com.agriia.app.feature.chat.domain.model.ChatAttachment? = null,
+    onRemoveAttachment: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Surface(
@@ -78,6 +87,54 @@ fun AgriiaChatInput(
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
+            // Chip de anexo selecionado (se houver)
+            if (attachedItem != null) {
+                Row(
+                    modifier = Modifier
+                        .padding(bottom = 8.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f))
+                        .padding(horizontal = 10.dp, vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Icon(
+                        imageVector = when (attachedItem.type) {
+                            com.agriia.app.feature.chat.domain.model.AttachmentType.FILE -> androidx.compose.material.icons.Icons.Outlined.Description
+                            com.agriia.app.feature.chat.domain.model.AttachmentType.IMAGE -> androidx.compose.material.icons.Icons.Outlined.Image
+                            com.agriia.app.feature.chat.domain.model.AttachmentType.CAMERA -> androidx.compose.material.icons.Icons.Outlined.PhotoCamera
+                            com.agriia.app.feature.chat.domain.model.AttachmentType.MAP -> androidx.compose.material.icons.Icons.Outlined.Map
+                        },
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Text(
+                        text = attachedItem.title,
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        ),
+                        maxLines = 1
+                    )
+                    Box(
+                        modifier = Modifier
+                            .size(18.dp)
+                            .clip(CircleShape)
+                            .clickable(onClick = onRemoveAttachment),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = androidx.compose.material.icons.Icons.Default.Clear,
+                            contentDescription = "Remover anexo",
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.size(12.dp)
+                        )
+                    }
+                }
+            }
+
             // Campo de Texto de Entrada
             Box(
                 modifier = Modifier

@@ -16,15 +16,22 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.Image
+import androidx.compose.material.icons.outlined.Map
+import androidx.compose.material.icons.outlined.PhotoCamera
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -78,7 +85,45 @@ fun MessageBubble(
             tonalElevation = if (isUser) 0.dp else 1.dp,
             modifier = Modifier.widthIn(max = 320.dp)
         ) {
-            Box(modifier = Modifier.padding(14.dp)) {
+            Column(modifier = Modifier.padding(14.dp)) {
+                if (!message.attachmentTitle.isNullOrEmpty()) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp)
+                            .clip(androidx.compose.foundation.shape.RoundedCornerShape(8.dp))
+                            .background(
+                                if (isUser) MaterialTheme.colorScheme.background.copy(alpha = 0.6f)
+                                else MaterialTheme.colorScheme.surfaceVariant
+                            )
+                            .padding(horizontal = 8.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        val icon = when (message.attachmentType) {
+                            "FILE" -> androidx.compose.material.icons.Icons.Outlined.Description
+                            "IMAGE" -> androidx.compose.material.icons.Icons.Outlined.Image
+                            "CAMERA" -> androidx.compose.material.icons.Icons.Outlined.PhotoCamera
+                            "MAP" -> androidx.compose.material.icons.Icons.Outlined.Map
+                            else -> androidx.compose.material.icons.Icons.Outlined.Description
+                        }
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Text(
+                            text = message.attachmentTitle,
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                                fontSize = 12.sp
+                            ),
+                            maxLines = 1
+                        )
+                    }
+                }
+
                 Row(verticalAlignment = Alignment.Bottom) {
                     Text(
                         text = message.content.ifEmpty { if (message.isStreaming) "Pensando..." else "" },
