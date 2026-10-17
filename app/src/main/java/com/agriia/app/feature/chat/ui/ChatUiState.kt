@@ -9,7 +9,7 @@ data class ChatUiState(
     val conversations: List<Conversation> = emptyList(),
     val messages: List<ChatMessage> = emptyList(),
     val userName: String = "Leandro",
-    val currentModelName: String = "agriia 1.0 · Pensamento",
+    val currentModelName: String = "Default",
     val inputText: String = "",
     val isTemporaryChat: Boolean = false,
     val isStreaming: Boolean = false,

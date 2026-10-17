@@ -11,7 +11,7 @@ val AgriiaShapes = Shapes(
     extraLarge = RoundedCornerShape(32.dp)
 )
 
-val ChatInputShape = RoundedCornerShape(28.dp)
+val ChatInputShape = RoundedCornerShape(16.dp)
 val DrawerShape = RoundedCornerShape(topEnd = 24.dp, bottomEnd = 24.dp)
 val PillButtonShape = RoundedCornerShape(50)
 val BubbleShapeUser = RoundedCornerShape(topStart = 18.dp, topEnd = 4.dp, bottomStart = 18.dp, bottomEnd = 18.dp)

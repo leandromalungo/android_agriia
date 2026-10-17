@@ -7,8 +7,8 @@
     <string name="greeting_morning_default">Bom dia</string>
     <string name="greeting_afternoon_default">Boa tarde</string>
     <string name="greeting_evening_default">Boa noite</string>
-    <string name="chat_input_placeholder">Conversar com agriia…</string>
-    <string name="model_selector_label">agriia 1.0 · Pensamento</string>
+    <string name="chat_input_placeholder">Faça alterações, adicione recursos, pergunte o que quiser</string>
+    <string name="model_selector_label">Default</string>
     <string name="upgrade_banner_title">Tenha mais com o agriia Pro</string>
     <string name="upgrade_banner_action">Migrar para Pro</string>
     <string name="nav_conversations">Conversas</string>

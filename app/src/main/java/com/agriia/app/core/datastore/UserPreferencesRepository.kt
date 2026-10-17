@@ -23,7 +23,7 @@ class UserPreferencesRepository(private val context: Context) {
     }
 
     val currentModelFlow: Flow<String> = context.dataStore.data.map { preferences ->
-        preferences[Keys.CURRENT_MODEL] ?: "agriia 1.0 · Pensamento"
+        preferences[Keys.CURRENT_MODEL] ?: "Default"
     }
 
     suspend fun updateUserName(name: String) {

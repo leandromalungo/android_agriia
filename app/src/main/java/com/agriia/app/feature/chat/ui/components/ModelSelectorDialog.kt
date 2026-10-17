@@ -38,16 +38,16 @@ fun ModelSelectorDialog(
 ) {
     val models = listOf(
         ModelOption(
-            name = "agriia 1.0 · Pensamento",
-            description = "Raciocínio profundo, resolução de problemas complexos e lógica."
+            name = "Default",
+            description = "Modo padrão equilibrado para análise, redação e dúvidas."
         ),
         ModelOption(
-            name = "agriia 1.0 · Instantâneo",
-            description = "Respostas super rápidas para perguntas do dia a dia e redação."
+            name = "Fast",
+            description = "Respostas super rápidas para perguntas pontuais do dia a dia."
         ),
         ModelOption(
-            name = "agriia Pro · Criativo",
-            description = "Capacidades expandidas de síntese, código e análise multimodal."
+            name = "Pro",
+            description = "Raciocínio avançado, código e capacidades complexas."
         )
     )
 
