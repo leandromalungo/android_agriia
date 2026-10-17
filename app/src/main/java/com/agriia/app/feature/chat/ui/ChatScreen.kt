@@ -83,6 +83,7 @@ fun ChatScreen(
 
     ModalNavigationDrawer(
         drawerState = drawerState,
+        scrimColor = androidx.compose.ui.graphics.Color(0x15000000),
         drawerContent = {
             DrawerContent(
                 conversations = uiState.conversations,
@@ -134,14 +135,6 @@ fun ChatScreen(
             },
             bottomBar = {
                 Column(modifier = Modifier.fillMaxWidth()) {
-                    if (uiState.showUpgradeBanner && uiState.messages.isEmpty()) {
-                        UpgradeBanner(
-                            onUpgradeClick = {
-                                Toast.makeText(context, "Plano Pro: recursos avançados em breve!", Toast.LENGTH_SHORT).show()
-                            }
-                        )
-                    }
-
                     AgriiaChatInput(
                         inputText = uiState.inputText,
                         onInputTextChange = viewModel::onInputTextChange,

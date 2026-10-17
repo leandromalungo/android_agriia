@@ -31,4 +31,7 @@ interface ConversationDao {
 
     @Query("DELETE FROM conversations WHERE id = :id")
     suspend fun deleteById(id: String)
+
+    @Query("DELETE FROM conversations WHERE id LIKE 'mock_chat_%'")
+    suspend fun deleteMockConversations()
 }

@@ -69,8 +69,9 @@ fun AgriiaChatInput(
             .padding(horizontal = 14.dp, vertical = 8.dp),
         shape = ChatInputShape,
         color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 2.dp,
-        shadowElevation = 4.dp
+        border = androidx.compose.foundation.BorderStroke(1.dp, com.agriia.app.core.designsystem.BorderLight),
+        tonalElevation = 0.dp,
+        shadowElevation = 2.dp
     ) {
         Column(
             modifier = Modifier

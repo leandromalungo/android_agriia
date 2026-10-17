@@ -137,23 +137,42 @@ fun DrawerContent(
                 modifier = Modifier.padding(horizontal = 24.dp, vertical = 6.dp)
             )
 
-            // Lista de Conversas Recentes
-            LazyColumn(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp)
-            ) {
-                items(conversations, key = { it.id }) { conversation ->
-                    val isSelected = conversation.id == currentConversationId
-                    RecentConversationItem(
-                        conversation = conversation,
-                        isSelected = isSelected,
-                        onClick = {
-                            onSelectConversation(conversation.id)
-                            onCloseDrawer()
-                        }
+            // Lista de Conversas Recentes ou estado vazio
+            if (conversations.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp, vertical = 20.dp),
+                    contentAlignment = Alignment.TopStart
+                ) {
+                    Text(
+                        text = "Nenhuma conversa recente.\nEnvie uma mensagem para começar!",
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                            fontSize = 13.sp,
+                            lineHeight = 18.sp
+                        )
                     )
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp)
+                ) {
+                    items(conversations, key = { it.id }) { conversation ->
+                        val isSelected = conversation.id == currentConversationId
+                        RecentConversationItem(
+                            conversation = conversation,
+                            isSelected = isSelected,
+                            onClick = {
+                                onSelectConversation(conversation.id)
+                                onCloseDrawer()
+                            }
+                        )
+                    }
                 }
             }
 

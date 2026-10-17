@@ -75,56 +75,9 @@ class ChatRepositoryImpl(
     }
 
     override suspend fun seedInitialMockConversationsIfEmpty() {
-        val existing = conversationDao.getAllConversations().first()
-        if (existing.isEmpty()) {
-            val now = System.currentTimeMillis()
-            val mockTitles = listOf(
-                "Inscrição para bolsa de estudo Sciences Po",
-                "Guia de pré-projeto para sistema comercial de cantina",
-                "Lista de exercícios básicos de C++",
-                "Email para Gabriel sobre inscrição de projeto na Geo...",
-                "Organizar carta de motivação",
-                "Nuantu space: startup de infraestrutura espacial",
-                "Verificação de informação",
-                "Pauta de notas automatizada em Excel",
-                "Explicação sobre inscrição e funcionamento",
-                "Copyright para post nas redes"
-            )
-
-            val initialList = mockTitles.mapIndexed { index, title ->
-                val time = now - (index * 3600000L * 4) // espaçados em horas
-                ConversationEntity(
-                    id = "mock_chat_$index",
-                    title = title,
-                    createdAt = time,
-                    updatedAt = time,
-                    modelName = "agriia 1.0 · Pensamento"
-                )
-            }
-            conversationDao.insertAll(initialList)
-
-            // Insere uma mensagem de boas-vindas mock na primeira conversa
-            initialList.firstOrNull()?.let { firstChat ->
-                messageDao.insertMessage(
-                    MessageEntity(
-                        id = UUID.randomUUID().toString(),
-                        conversationId = firstChat.id,
-                        role = "user",
-                        content = "Como posso estruturar a carta para a bolsa de estudo?",
-                        timestamp = firstChat.updatedAt - 120000
-                    )
-                )
-                messageDao.insertMessage(
-                    MessageEntity(
-                        id = UUID.randomUUID().toString(),
-                        conversationId = firstChat.id,
-                        role = "assistant",
-                        content = "Para a Sciences Po, foque em três pilares principais: sua trajetória acadêmica única, a conexão direta do seu projeto com os valores da instituição e seu impacto futuro no setor público ou internacional.",
-                        timestamp = firstChat.updatedAt
-                    )
-                )
-            }
-        }
+        // Remove quaisquer conversas mockadas pré-existentes para garantir que apenas
+        // interações e conversas reais do usuário sejam exibidas
+        conversationDao.deleteMockConversations()
     }
 
     override fun streamAiResponse(prompt: String, conversationId: String): Flow<String> = flow {

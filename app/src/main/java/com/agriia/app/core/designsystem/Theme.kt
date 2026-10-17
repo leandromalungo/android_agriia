@@ -1,9 +1,7 @@
 package com.agriia.app.core.designsystem
 
 import android.app.Activity
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
@@ -31,32 +29,17 @@ private val LightColorScheme = lightColorScheme(
     outline = BorderLight
 )
 
-private val DarkColorScheme = darkColorScheme(
-    primary = DarkPrimary,
-    onPrimary = DarkOnPrimary,
-    primaryContainer = DarkSurfaceVariant,
-    onPrimaryContainer = DarkPrimary,
-    secondary = DarkSecondary,
-    onSecondary = DarkOnPrimary,
-    secondaryContainer = DarkSurface,
-    onSecondaryContainer = DarkSecondary,
-    tertiary = DarkAccentGreen,
-    onTertiary = DarkOnPrimary,
-    background = DarkBackground,
-    onBackground = DarkTextPrimary,
-    surface = DarkSurface,
-    onSurface = DarkTextPrimary,
-    surfaceVariant = DarkSurfaceVariant,
-    onSurfaceVariant = DarkTextSecondary,
-    outline = DarkBorder
-)
-
+/**
+ * Tema exclusivo claro/branco para o agriia.
+ * Sempre utiliza o esquema de cores MilkWhite e LimeSoft com ícones de sistema escuros.
+ */
 @Composable
 fun AgriiaTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
+    // Configurado exclusivamente para tema branco
+    val colorScheme = LightColorScheme
     val view = LocalView.current
 
     if (!view.isInEditMode) {
@@ -64,8 +47,8 @@ fun AgriiaTheme(
             val window = (view.context as? Activity)?.window ?: return@SideEffect
             window.statusBarColor = colorScheme.background.toArgb()
             window.navigationBarColor = colorScheme.background.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
-            WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = !darkTheme
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
+            WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = true
         }
     }
 
