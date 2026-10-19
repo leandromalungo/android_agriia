@@ -12,6 +12,7 @@ data class ChatUiState(
     val userName: String = "Leandro",
     val currentModelName: String = "Default",
     val inputText: String = "",
+    val searchQuery: String = "",
     val isTemporaryChat: Boolean = false,
     val isStreaming: Boolean = false,
     val selectedTopTab: AgriiaTopTab = AgriiaTopTab.CHAT,

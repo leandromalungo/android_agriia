@@ -151,6 +151,8 @@ fun ChatScreen(
                 conversations = uiState.conversations,
                 currentConversationId = uiState.currentConversationId,
                 userName = uiState.userName,
+                searchQuery = uiState.searchQuery,
+                onSearchQueryChange = viewModel::onSearchQueryChange,
                 onSelectConversation = { convId ->
                     viewModel.onSelectConversation(convId)
                 },

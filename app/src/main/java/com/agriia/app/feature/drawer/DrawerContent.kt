@@ -43,6 +43,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material3.IconButton
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.text.TextStyle
 import com.agriia.app.core.designsystem.PillButtonShape
 import com.agriia.app.core.designsystem.components.AgriiaLogo
 import com.agriia.app.feature.chat.domain.model.Conversation
@@ -53,6 +60,8 @@ fun DrawerContent(
     conversations: List<Conversation>,
     currentConversationId: String?,
     userName: String,
+    searchQuery: String = "",
+    onSearchQueryChange: (String) -> Unit = {},
     onSelectConversation: (String) -> Unit,
     onDeleteConversation: ((String) -> Unit)? = null,
     onNewChatClick: () -> Unit,
@@ -129,15 +138,93 @@ fun DrawerContent(
             )
             Spacer(modifier = Modifier.height(14.dp))
 
-            // Título "Recentes"
-            Text(
-                text = stringResource(R.string.nav_recent),
-                style = MaterialTheme.typography.labelMedium.copy(
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
-                ),
-                modifier = Modifier.padding(horizontal = 24.dp, vertical = 6.dp)
-            )
+            // Barra de Busca de Conversas
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                shape = RoundedCornerShape(10.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                border = BorderStroke(0.8.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.35f))
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 7.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Search,
+                        contentDescription = "Buscar",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                        modifier = Modifier.size(17.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
+                        if (searchQuery.isEmpty()) {
+                            Text(
+                                text = "Buscar conversas...",
+                                style = MaterialTheme.typography.bodySmall.copy(
+                                    fontSize = 13.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                                )
+                            )
+                        }
+                        BasicTextField(
+                            value = searchQuery,
+                            onValueChange = onSearchQueryChange,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .testTag("conversation_search_field"),
+                            textStyle = TextStyle(
+                                fontSize = 13.sp,
+                                color = MaterialTheme.colorScheme.onSurface
+                            ),
+                            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                            singleLine = true
+                        )
+                    }
+                    if (searchQuery.isNotEmpty()) {
+                        IconButton(
+                            onClick = { onSearchQueryChange("") },
+                            modifier = Modifier.size(20.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Clear,
+                                contentDescription = "Limpar busca",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(14.dp)
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            // Título "Recentes" ou "Resultados da busca"
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = if (searchQuery.isBlank()) stringResource(R.string.nav_recent) else "Resultados da busca",
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
+                    )
+                )
+                if (searchQuery.isNotBlank()) {
+                    Text(
+                        text = "${conversations.size} encontrada(s)",
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                            fontSize = 11.sp
+                        )
+                    )
+                }
+            }
 
             // Lista de Conversas Recentes ou estado vazio
             if (conversations.isEmpty()) {
@@ -149,7 +236,8 @@ fun DrawerContent(
                     contentAlignment = Alignment.TopStart
                 ) {
                     Text(
-                        text = "Nenhuma conversa recente.\nEnvie uma mensagem para começar!",
+                        text = if (searchQuery.isNotBlank()) "Nenhuma conversa encontrada para \"$searchQuery\"."
+                        else "Nenhuma conversa recente.\nEnvie uma mensagem para começar!",
                         style = MaterialTheme.typography.bodyMedium.copy(
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                             fontSize = 13.sp,

@@ -6,10 +6,14 @@ import com.agriia.app.core.datastore.UserPreferencesRepository
 import com.agriia.app.feature.chat.domain.model.ChatMessage
 import com.agriia.app.feature.chat.domain.model.ChatRole
 import com.agriia.app.feature.chat.domain.repository.ChatRepository
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -24,6 +28,8 @@ class ChatViewModel(
 
     private var messagesJob: Job? = null
     private var streamingJob: Job? = null
+    private var conversationsJob: Job? = null
+    private val _searchQuery = MutableStateFlow("")
 
     init {
         // Observa preferências do usuário (Nome e Modelo)
@@ -38,13 +44,36 @@ class ChatViewModel(
             }
         }
 
-        // Carrega e observa histórico de conversas do Room
         viewModelScope.launch {
             chatRepository.seedInitialMockConversationsIfEmpty()
-            chatRepository.getRecentConversations().collect { list ->
-                _uiState.update { it.copy(conversations = list) }
-            }
         }
+
+        observeConversations()
+    }
+
+    @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
+    private fun observeConversations() {
+        conversationsJob?.cancel()
+        conversationsJob = viewModelScope.launch {
+            _searchQuery
+                .debounce(150L)
+                .flatMapLatest { query ->
+                    val trimmed = query.trim()
+                    if (trimmed.isBlank()) {
+                        chatRepository.getRecentConversations()
+                    } else {
+                        chatRepository.searchConversations(trimmed)
+                    }
+                }
+                .collect { list ->
+                    _uiState.update { it.copy(conversations = list) }
+                }
+        }
+    }
+
+    fun onSearchQueryChange(query: String) {
+        _searchQuery.value = query
+        _uiState.update { it.copy(searchQuery = query) }
     }
 
     fun onInputTextChange(text: String) {
