@@ -154,6 +154,10 @@ class ChatViewModel(
         _uiState.update { it.copy(showMapDialog = show) }
     }
 
+    fun onShowRealtimeVoiceModal(show: Boolean) {
+        _uiState.update { it.copy(showRealtimeVoiceModal = show) }
+    }
+
     fun onSelectAttachment(attachment: com.agriia.app.feature.chat.domain.model.ChatAttachment) {
         _uiState.update {
             it.copy(

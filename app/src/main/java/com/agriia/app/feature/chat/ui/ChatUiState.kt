@@ -22,6 +22,7 @@ data class ChatUiState(
     val showModelSelectorDialog: Boolean = false,
     val showAttachmentSheet: Boolean = false,
     val showMapDialog: Boolean = false,
+    val showRealtimeVoiceModal: Boolean = false,
     val pendingAttachment: ChatAttachment? = null,
     val toastMessage: String? = null
 )

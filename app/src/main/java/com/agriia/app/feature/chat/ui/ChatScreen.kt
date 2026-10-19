@@ -209,7 +209,7 @@ fun ChatScreen(
                                 Toast.makeText(context, "Ditado por voz ativado", Toast.LENGTH_SHORT).show()
                             },
                             onVoiceModeClick = {
-                                Toast.makeText(context, "Modo de voz bidirecional conectado", Toast.LENGTH_SHORT).show()
+                                viewModel.onShowRealtimeVoiceModal(true)
                             },
                             currentModelName = uiState.currentModelName,
                             onModelSelectorClick = {
@@ -357,6 +357,15 @@ fun ChatScreen(
                 viewModel.onSelectModel(model)
             },
             onDismiss = { viewModel.onShowModelSelectorDialog(false) }
+        )
+    }
+
+    if (uiState.showRealtimeVoiceModal) {
+        com.agriia.app.feature.chat.ui.components.RealtimeVoiceDialog(
+            onDismiss = { viewModel.onShowRealtimeVoiceModal(false) },
+            onFinishWithTranscript = { transcript ->
+                viewModel.onSendMessage(transcript)
+            }
         )
     }
 }

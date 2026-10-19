@@ -21,6 +21,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.outlined.AddCircleOutline
@@ -187,41 +188,31 @@ fun AgriiaChatInput(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                // Grupo da direita: [ Default ⌵ ] [ 🎙 ] [ ↑ ]
+                // Grupo da direita: [ 〰 Conversação em Tempo Real ] [ 🎙 Ditado de Áudio ] [ ↑ Enviar ]
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    // Seletor de Modelo ("Default ⌵")
-                    val modelDisplay = currentModelName.substringBefore("·").trim().ifEmpty { "Default" }
-                    Row(
+                    // Botão de Conversação em Tempo Real com a IA
+                    Box(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(12.dp))
+                            .size(34.dp)
+                            .clip(CircleShape)
                             .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
                             .border(
                                 width = 0.8.dp,
-                                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
-                                shape = RoundedCornerShape(12.dp)
+                                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.35f),
+                                shape = CircleShape
                             )
-                            .clickable(onClick = onModelSelectorClick)
-                            .padding(horizontal = 12.dp, vertical = 6.dp)
-                            .testTag("model_selector_button"),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            .clickable(onClick = onVoiceModeClick)
+                            .testTag("realtime_conversation_button"),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = modelDisplay,
-                            style = MaterialTheme.typography.labelMedium.copy(
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                        )
                         Icon(
-                            imageVector = Icons.Default.KeyboardArrowDown,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            imageVector = Icons.Default.GraphicEq,
+                            contentDescription = "Conversação em tempo real com a IA",
+                            tint = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.size(18.dp)
                         )
                     }
 
