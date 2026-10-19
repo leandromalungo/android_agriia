@@ -172,19 +172,10 @@ fun ChatScreen(
             )
         }
     ) {
-        // Fundo com sutil degradê suave de branco leitoso a verde lima
-        val bgBrush = Brush.verticalGradient(
-            colors = listOf(
-                MaterialTheme.colorScheme.background,
-                MaterialTheme.colorScheme.background,
-                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.25f)
-            )
-        )
-
         Scaffold(
             modifier = modifier
                 .fillMaxSize()
-                .background(bgBrush)
+                .background(MaterialTheme.colorScheme.background)
                 .imePadding(),
             snackbarHost = { SnackbarHost(snackbarHostState) },
             topBar = {

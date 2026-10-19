@@ -85,7 +85,7 @@ fun AgriiaChatInput(
                     modifier = Modifier
                         .padding(bottom = 8.dp)
                         .clip(RoundedCornerShape(8.dp))
-                        .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f))
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
                         .padding(horizontal = 10.dp, vertical = 6.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -98,7 +98,7 @@ fun AgriiaChatInput(
                             AttachmentType.MAP -> Icons.Outlined.Map
                         },
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
+                        tint = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.size(16.dp)
                     )
                     Text(
@@ -106,7 +106,7 @@ fun AgriiaChatInput(
                         style = MaterialTheme.typography.labelSmall.copy(
                             fontWeight = FontWeight.Medium,
                             fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                            color = MaterialTheme.colorScheme.onSurface
                         ),
                         maxLines = 1
                     )
@@ -120,7 +120,7 @@ fun AgriiaChatInput(
                         Icon(
                             imageVector = Icons.Default.Clear,
                             contentDescription = "Remover anexo",
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                            tint = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.size(12.dp)
                         )
                     }

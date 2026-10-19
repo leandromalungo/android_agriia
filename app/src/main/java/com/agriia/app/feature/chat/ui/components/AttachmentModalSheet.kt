@@ -86,8 +86,8 @@ fun AttachmentModalSheet(
                 icon = Icons.Outlined.Description,
                 title = "Enviar ficheiro",
                 subtitle = "Documentos, PDFs, planilhas ou arquivos de texto",
-                containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f),
-                iconTint = MaterialTheme.colorScheme.primary,
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                iconTint = MaterialTheme.colorScheme.onSurface,
                 testTag = "attachment_option_file",
                 onClick = {
                     onDismiss()
@@ -102,8 +102,8 @@ fun AttachmentModalSheet(
                 icon = Icons.Outlined.Image,
                 title = "Enviar imagem",
                 subtitle = "Fotos ou ilustrações da sua galeria",
-                containerColor = LimeSoft,
-                iconTint = MaterialTheme.colorScheme.secondary,
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                iconTint = MaterialTheme.colorScheme.onSurface,
                 testTag = "attachment_option_image",
                 onClick = {
                     onDismiss()
@@ -134,8 +134,8 @@ fun AttachmentModalSheet(
                 icon = Icons.Outlined.Map,
                 title = "Pegar imagem do mapa",
                 subtitle = "Anexe coordenadas ou imagem de área agrícola / localização",
-                containerColor = LimeAccent.copy(alpha = 0.4f),
-                iconTint = MaterialTheme.colorScheme.primary,
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                iconTint = MaterialTheme.colorScheme.onSurface,
                 testTag = "attachment_option_map",
                 onClick = {
                     onDismiss()

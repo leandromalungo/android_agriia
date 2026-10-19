@@ -72,7 +72,7 @@ fun AgronomicAnalysisScreen(
 
         Spacer(modifier = Modifier.height(14.dp))
 
-        // Cards de KPIs em Grid 2x2
+        // Cards de KPIs em Grid 2x2 (Monocromático)
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -82,7 +82,7 @@ fun AgronomicAnalysisScreen(
                 title = "Produtividade Prevista",
                 value = "66.4 sc/ha",
                 badge = "+8% vs média regional",
-                badgeColor = Color(0xFF4CAF50),
+                badgeColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.weight(1f)
             )
             KpiCard(
@@ -90,7 +90,7 @@ fun AgronomicAnalysisScreen(
                 title = "Umidade no Perfil",
                 value = "72%",
                 badge = "Capacidade de campo",
-                badgeColor = MaterialTheme.colorScheme.primary,
+                badgeColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.weight(1f)
             )
         }
@@ -106,7 +106,7 @@ fun AgronomicAnalysisScreen(
                 title = "Nitrogênio Foliar",
                 value = "48.2 g/kg",
                 badge = "Faixa Adequada",
-                badgeColor = Color(0xFF4CAF50),
+                badgeColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.weight(1f)
             )
             KpiCard(
@@ -114,20 +114,20 @@ fun AgronomicAnalysisScreen(
                 title = "Chuva Acumulada (15d)",
                 value = "84 mm",
                 badge = "Sem déficit hídrico",
-                badgeColor = MaterialTheme.colorScheme.secondary,
+                badgeColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.weight(1f)
             )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Card com Insight da IA
+        // Card com Insight da IA em tom cinza neutro
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(14.dp))
-                .border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f), RoundedCornerShape(14.dp)),
-            color = LimeSoft.copy(alpha = 0.45f)
+                .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.35f), RoundedCornerShape(14.dp)),
+            color = MaterialTheme.colorScheme.surfaceVariant
         ) {
             Column(modifier = Modifier.padding(14.dp)) {
                 Row(

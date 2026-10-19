@@ -79,12 +79,10 @@ fun MessageBubble(
 
         Surface(
             shape = if (isUser) BubbleShapeUser else BubbleShapeAi,
-            color = if (isUser) {
-                MaterialTheme.colorScheme.primaryContainer
-            } else {
-                MaterialTheme.colorScheme.surface
-            },
-            tonalElevation = if (isUser) 0.dp else 1.dp,
+            color = if (isUser) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface,
+            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)),
+            tonalElevation = 0.dp,
+            shadowElevation = 0.dp,
             modifier = Modifier.widthIn(max = 320.dp)
         ) {
             Column(modifier = Modifier.padding(14.dp)) {

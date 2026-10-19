@@ -70,10 +70,10 @@ fun AgriculturalMapScreen(
     var selectedPlotIndex by remember { mutableStateOf(0) }
 
     val plots = listOf(
-        FieldPlot("p1", "Talhão Norte (Soja M90)", "142 ha", "Soja Intacta", "0.82 (Ótimo)", Color(0xFF4CAF50)),
-        FieldPlot("p2", "Pivô Central 02 (Milho Safrinha)", "85 ha", "Milho Híbrido", "0.76 (Bom)", Color(0xFF8BC34A)),
-        FieldPlot("p3", "Talhão Sul (Algodão)", "110 ha", "Algodão B2RF", "0.68 (Atenção)", Color(0xFFFBC02D)),
-        FieldPlot("p4", "Área de Preservação / Nascente", "48 ha", "Mata Ciliar", "0.91 (Excelente)", Color(0xFF2E7D32))
+        FieldPlot("p1", "Talhão Norte (Soja M90)", "142 ha", "Soja Intacta", "0.82 (Ótimo)", Color(0xFF212121)),
+        FieldPlot("p2", "Pivô Central 02 (Milho Safrinha)", "85 ha", "Milho Híbrido", "0.76 (Bom)", Color(0xFF616161)),
+        FieldPlot("p3", "Talhão Sul (Algodão)", "110 ha", "Algodão B2RF", "0.68 (Atenção)", Color(0xFF9E9E9E)),
+        FieldPlot("p4", "Área de Preservação / Nascente", "48 ha", "Mata Ciliar", "0.91 (Excelente)", Color(0xFF424242))
     )
 
     Column(
@@ -123,29 +123,29 @@ fun AgriculturalMapScreen(
 
         Spacer(modifier = Modifier.height(14.dp))
 
-        // Visualizador Gráfico de Mapa Interativo em Canvas
+        // Visualizador Gráfico de Mapa Interativo em Canvas (Monocromático)
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(200.dp)
                 .clip(RoundedCornerShape(16.dp))
                 .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f), RoundedCornerShape(16.dp)),
-            color = Color(0xFFDEEBD5)
+            color = Color(0xFFF5F5F5)
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
                 Canvas(modifier = Modifier.matchParentSize()) {
                     val w = size.width
                     val h = size.height
 
-                    // Divisões poligonais dos talhões agrícolas
-                    drawRect(Color(0xFF8EB976), Offset(0f, 0f), Size(w * 0.55f, h * 0.52f))
-                    drawRect(Color(0xFFA5C98F), Offset(w * 0.56f, 0f), Size(w * 0.44f, h * 0.52f))
-                    drawRect(Color(0xFFC0DBAA), Offset(0f, h * 0.54f), Size(w * 0.48f, h * 0.46f))
-                    drawCircle(Color(0xFF5F9444), radius = h * 0.32f, center = Offset(w * 0.76f, h * 0.74f))
+                    // Divisões poligonais dos talhões agrícolas em tons de cinza
+                    drawRect(Color(0xFFE0E0E0), Offset(0f, 0f), Size(w * 0.55f, h * 0.52f))
+                    drawRect(Color(0xFFEEEEEE), Offset(w * 0.56f, 0f), Size(w * 0.44f, h * 0.52f))
+                    drawRect(Color(0xFFD6D6D6), Offset(0f, h * 0.54f), Size(w * 0.48f, h * 0.46f))
+                    drawCircle(Color(0xFFBDBDBD), radius = h * 0.32f, center = Offset(w * 0.76f, h * 0.74f))
 
-                    // Linhas de estradas vicinais / carreadores
-                    drawLine(Color(0xFFFAF9F4), Offset(w * 0.55f, 0f), Offset(w * 0.55f, h), strokeWidth = 5f)
-                    drawLine(Color(0xFFFAF9F4), Offset(0f, h * 0.53f), Offset(w, h * 0.53f), strokeWidth = 5f)
+                    // Linhas de estradas vicinais / carreadores em branco
+                    drawLine(Color(0xFFFFFFFF), Offset(w * 0.55f, 0f), Offset(w * 0.55f, h), strokeWidth = 5f)
+                    drawLine(Color(0xFFFFFFFF), Offset(0f, h * 0.53f), Offset(w, h * 0.53f), strokeWidth = 5f)
                 }
 
                 // Pino do talhão selecionado
@@ -155,7 +155,7 @@ fun AgriculturalMapScreen(
                         .align(Alignment.Center)
                         .clip(RoundedCornerShape(20.dp))
                         .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.95f))
-                        .border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.4f), RoundedCornerShape(20.dp))
+                        .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f), RoundedCornerShape(20.dp))
                         .padding(horizontal = 10.dp, vertical = 6.dp)
                 ) {
                     Row(
@@ -183,7 +183,7 @@ fun AgriculturalMapScreen(
 
         Spacer(modifier = Modifier.height(14.dp))
 
-        // Camadas de dados do mapa (Pills de filtro)
+        // Camadas de dados do mapa (Pills de filtro em cinza/preto)
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -194,8 +194,8 @@ fun AgriculturalMapScreen(
                     modifier = Modifier
                         .clip(RoundedCornerShape(12.dp))
                         .background(
-                            if (isSelected) MaterialTheme.colorScheme.primaryContainer
-                            else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+                            if (isSelected) MaterialTheme.colorScheme.primary
+                            else MaterialTheme.colorScheme.surfaceVariant
                         )
                         .clickable { selectedLayer = layer }
                         .padding(horizontal = 14.dp, vertical = 7.dp)
@@ -204,7 +204,7 @@ fun AgriculturalMapScreen(
                         text = "Camada $layer",
                         style = MaterialTheme.typography.labelSmall.copy(
                             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-                            color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer
+                            color = if (isSelected) MaterialTheme.colorScheme.onPrimary
                             else MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     )

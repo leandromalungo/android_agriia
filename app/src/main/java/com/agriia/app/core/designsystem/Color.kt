@@ -2,35 +2,46 @@ package com.agriia.app.core.designsystem
 
 import androidx.compose.ui.graphics.Color
 
-// Paleta Light (Identidade Orgânica agriia)
-val MilkWhite = Color(0xFFFAFAF2)
-val LimeSoft = Color(0xFFEEF5D0)
-val LimeAccent = Color(0xFFD6E898)
-val SurfaceLight = Color(0xFFF3F4EB)
-val SurfaceVariantLight = Color(0xFFE8EAE0)
-val ForestGreenPrimary = Color(0xFF1F3A2B)
-val ForestGreenSecondary = Color(0xFF2D533D)
-val AccentGreen = Color(0xFF3B6E50)
-val AccentGreenContainer = Color(0xFFD8ECD7)
-val TextPrimaryLight = Color(0xFF17231B)
-val TextSecondaryLight = Color(0xFF6E776F)
-val BorderLight = Color(0xFFE2E5DC)
-val BannerBgLight = Color(0xFFEBEFE1)
-
-// Paleta Dark (Modo Escuro Moderno)
-val DarkBackground = Color(0xFF141715)
-val DarkSurface = Color(0xFF1D221E)
-val DarkSurfaceVariant = Color(0xFF252C27)
-val DarkPrimary = Color(0xFFA9D8B4)
-val DarkOnPrimary = Color(0xFF0B2014)
-val DarkSecondary = Color(0xFF88B394)
-val DarkAccentGreen = Color(0xFF5CA373)
-val DarkTextPrimary = Color(0xFFEBF1EC)
-val DarkTextSecondary = Color(0xFF919D94)
-val DarkBorder = Color(0xFF2B332E)
-val DarkBannerBg = Color(0xFF212823)
-
-// Auxiliares
+// Paleta Monocromática Minimalista (Branco, Cinza e Preto)
 val PureWhite = Color(0xFFFFFFFF)
+val Gray50 = Color(0xFFFAFAFA)
+val Gray100 = Color(0xFFF5F5F5)
+val Gray200 = Color(0xFFEEEEEE)
+val Gray300 = Color(0xFFE0E0E0)
+val Gray400 = Color(0xFFBDBDBD)
+val Gray500 = Color(0xFF9E9E9E)
+val Gray600 = Color(0xFF757575)
+val Gray700 = Color(0xFF616161)
+val Gray800 = Color(0xFF424242)
+val Gray900 = Color(0xFF212121)
 val PureBlack = Color(0xFF000000)
-val GhostPurple = Color(0xFF9E86C8)
+
+// Aliases mantidos para compatibilidade, todos 100% neutros (sem tons verdes)
+val MilkWhite = PureWhite
+val LimeSoft = Gray100
+val LimeAccent = Gray300
+val SurfaceLight = PureWhite
+val SurfaceVariantLight = Gray100
+val ForestGreenPrimary = PureBlack
+val ForestGreenSecondary = Gray900
+val AccentGreen = Gray800
+val AccentGreenContainer = Gray200
+val TextPrimaryLight = PureBlack
+val TextSecondaryLight = Gray600
+val BorderLight = Gray300
+val BannerBgLight = Gray100
+
+// Modo Escuro Neutro
+val DarkBackground = Color(0xFF121212)
+val DarkSurface = Color(0xFF1E1E1E)
+val DarkSurfaceVariant = Color(0xFF2C2C2C)
+val DarkPrimary = PureWhite
+val DarkOnPrimary = PureBlack
+val DarkSecondary = Gray300
+val DarkAccentGreen = Gray400
+val DarkTextPrimary = PureWhite
+val DarkTextSecondary = Gray400
+val DarkBorder = Color(0xFF383838)
+val DarkBannerBg = Color(0xFF1E1E1E)
+
+val GhostPurple = Gray700

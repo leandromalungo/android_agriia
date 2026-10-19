@@ -199,7 +199,7 @@ fun DrawerContent(
                 val userInitial = userName.trim().firstOrNull()?.uppercaseChar()?.toString() ?: "U"
                 Box(
                     modifier = Modifier
-                        .size(42.dp)
+                        .size(38.dp)
                         .clip(CircleShape)
                         .background(MaterialTheme.colorScheme.surfaceVariant),
                     contentAlignment = Alignment.Center
@@ -213,13 +213,14 @@ fun DrawerContent(
                     )
                 }
 
-                Spacer(modifier = Modifier.width(10.dp))
+                Spacer(modifier = Modifier.width(12.dp))
 
-                // Botão "Novo bate-papo" em pílula
+                // Botão "Novo bate-papo" em pílula preta com texto branco
                 Row(
                     modifier = Modifier
+                        .weight(1f)
                         .clip(PillButtonShape)
-                        .background(MaterialTheme.colorScheme.onBackground)
+                        .background(MaterialTheme.colorScheme.primary)
                         .clickable(onClick = {
                             onNewChatClick()
                             onCloseDrawer()
@@ -227,39 +228,22 @@ fun DrawerContent(
                         .padding(horizontal = 16.dp, vertical = 10.dp)
                         .testTag("drawer_new_chat_button"),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    horizontalArrangement = Arrangement.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.background,
+                        tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.size(16.dp)
                     )
+                    Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = stringResource(R.string.nav_new_chat),
                         style = MaterialTheme.typography.labelLarge.copy(
                             fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.background,
+                            color = MaterialTheme.colorScheme.onPrimary,
                             fontSize = 13.sp
                         )
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(6.dp))
-
-                // Ícone de voz discreto
-                Box(
-                    modifier = Modifier
-                        .size(38.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.GraphicEq,
-                        contentDescription = stringResource(R.string.voice_mode_content_description),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(18.dp)
                     )
                 }
             }

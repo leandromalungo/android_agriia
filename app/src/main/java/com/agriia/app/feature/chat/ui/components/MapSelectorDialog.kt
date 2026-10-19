@@ -98,22 +98,22 @@ fun MapSelectorDialog(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Prévia gráfica do mapa em Canvas estilizado
+                // Prévia gráfica do mapa em Canvas estilizado neutro
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(130.dp)
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFFE2EED9))
+                        .background(Color(0xFFF5F5F5))
                         .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f), RoundedCornerShape(12.dp)),
                     contentAlignment = Alignment.Center
                 ) {
                     Canvas(modifier = Modifier.matchParentSize()) {
-                        // Linhas de relevo topográfico / grade do mapa
+                        // Linhas de relevo topográfico / grade do mapa em cinza neutro
                         val step = 28f
                         for (x in 0..(size.width / step).toInt()) {
                             drawLine(
-                                color = Color(0xFFC8DFC0),
+                                color = Color(0xFFE0E0E0),
                                 start = Offset(x * step, 0f),
                                 end = Offset(x * step, size.height),
                                 strokeWidth = 1f
@@ -121,7 +121,7 @@ fun MapSelectorDialog(
                         }
                         for (y in 0..(size.height / step).toInt()) {
                             drawLine(
-                                color = Color(0xFFC8DFC0),
+                                color = Color(0xFFE0E0E0),
                                 start = Offset(0f, y * step),
                                 end = Offset(size.width, y * step),
                                 strokeWidth = 1f
@@ -158,7 +158,7 @@ fun MapSelectorDialog(
                             ),
                             modifier = Modifier
                                 .clip(RoundedCornerShape(4.dp))
-                                .background(Color.White.copy(alpha = 0.85f))
+                                .background(Color.White.copy(alpha = 0.9f))
                                 .padding(horizontal = 6.dp, vertical = 2.dp)
                         )
                     }
@@ -175,8 +175,14 @@ fun MapSelectorDialog(
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(8.dp))
                                 .background(
-                                    if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
-                                    else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                                    if (isSelected) MaterialTheme.colorScheme.surfaceVariant
+                                    else MaterialTheme.colorScheme.surface
+                                )
+                                .border(
+                                    1.dp,
+                                    if (isSelected) MaterialTheme.colorScheme.outline
+                                    else MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
+                                    RoundedCornerShape(8.dp)
                                 )
                                 .clickable { selectedIndex = index }
                                 .padding(horizontal = 10.dp, vertical = 8.dp),
