@@ -195,31 +195,37 @@ fun ChatScreen(
                     isTemporaryChat = uiState.isTemporaryChat,
                     onToggleTemporaryChat = {
                         viewModel.onToggleTemporaryChat()
+                    },
+                    selectedTab = uiState.selectedTopTab,
+                    onTabSelected = { tab ->
+                        viewModel.onSelectTopTab(tab)
                     }
                 )
             },
             bottomBar = {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    AgriiaChatInput(
-                        inputText = uiState.inputText,
-                        onInputTextChange = viewModel::onInputTextChange,
-                        onSendMessage = viewModel::onSendMessage,
-                        onAttachClick = {
-                            viewModel.onShowAttachmentSheet(true)
-                        },
-                        onMicClick = {
-                            Toast.makeText(context, "Ditado por voz ativado", Toast.LENGTH_SHORT).show()
-                        },
-                        onVoiceModeClick = {
-                            Toast.makeText(context, "Modo de voz bidirecional conectado", Toast.LENGTH_SHORT).show()
-                        },
-                        currentModelName = uiState.currentModelName,
-                        onModelSelectorClick = {
-                            viewModel.onShowModelSelectorDialog(true)
-                        },
-                        attachedItem = uiState.pendingAttachment,
-                        onRemoveAttachment = viewModel::onClearAttachment
-                    )
+                if (uiState.selectedTopTab == com.agriia.app.core.designsystem.components.AgriiaTopTab.CHAT) {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        AgriiaChatInput(
+                            inputText = uiState.inputText,
+                            onInputTextChange = viewModel::onInputTextChange,
+                            onSendMessage = viewModel::onSendMessage,
+                            onAttachClick = {
+                                viewModel.onShowAttachmentSheet(true)
+                            },
+                            onMicClick = {
+                                Toast.makeText(context, "Ditado por voz ativado", Toast.LENGTH_SHORT).show()
+                            },
+                            onVoiceModeClick = {
+                                Toast.makeText(context, "Modo de voz bidirecional conectado", Toast.LENGTH_SHORT).show()
+                            },
+                            currentModelName = uiState.currentModelName,
+                            onModelSelectorClick = {
+                                viewModel.onShowModelSelectorDialog(true)
+                            },
+                            attachedItem = uiState.pendingAttachment,
+                            onRemoveAttachment = viewModel::onClearAttachment
+                        )
+                    }
                 }
             },
             containerColor = androidx.compose.ui.graphics.Color.Transparent
@@ -229,41 +235,61 @@ fun ChatScreen(
                     .fillMaxSize()
                     .padding(innerPadding)
             ) {
-                if (uiState.messages.isEmpty()) {
-                    // Estado Vazio: Saudação centralizada
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Spacer(modifier = Modifier.weight(1f))
-                        GreetingHeader(userName = uiState.userName)
-                        if (uiState.isTemporaryChat) {
-                            Spacer(modifier = Modifier.height(12.dp))
-                            Text(
-                                text = stringResource(R.string.temp_chat_enabled_hint),
-                                style = MaterialTheme.typography.labelSmall.copy(
-                                    fontSize = 12.sp,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-                                ),
-                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                                modifier = Modifier.padding(horizontal = 32.dp)
-                            )
+                when (uiState.selectedTopTab) {
+                    com.agriia.app.core.designsystem.components.AgriiaTopTab.CHAT -> {
+                        if (uiState.messages.isEmpty()) {
+                            // Estado Vazio: Saudação centralizada
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(horizontal = 16.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Spacer(modifier = Modifier.weight(1f))
+                                GreetingHeader(userName = uiState.userName)
+                                if (uiState.isTemporaryChat) {
+                                    Spacer(modifier = Modifier.height(12.dp))
+                                    Text(
+                                        text = stringResource(R.string.temp_chat_enabled_hint),
+                                        style = MaterialTheme.typography.labelSmall.copy(
+                                            fontSize = 12.sp,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                                        ),
+                                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                        modifier = Modifier.padding(horizontal = 32.dp)
+                                    )
+                                }
+                                Spacer(modifier = Modifier.weight(1.2f))
+                            }
+                        } else {
+                            // Lista de Mensagens da conversa atual
+                            LazyColumn(
+                                state = listState,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(vertical = 8.dp)
+                            ) {
+                                items(uiState.messages, key = { it.id }) { message ->
+                                    MessageBubble(message = message)
+                                }
+                            }
                         }
-                        Spacer(modifier = Modifier.weight(1.2f))
                     }
-                } else {
-                    // Lista de Mensagens da conversa atual
-                    LazyColumn(
-                        state = listState,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(vertical = 8.dp)
-                    ) {
-                        items(uiState.messages, key = { it.id }) { message ->
-                            MessageBubble(message = message)
-                        }
+                    com.agriia.app.core.designsystem.components.AgriiaTopTab.MAPA -> {
+                        com.agriia.app.feature.map.AgriculturalMapScreen(
+                            onSendPlotToChat = { plotName, crop ->
+                                viewModel.onSelectTopTab(com.agriia.app.core.designsystem.components.AgriiaTopTab.CHAT)
+                                viewModel.onSendMessage("Gostaria de uma análise detalhada sobre o $plotName com cultivo de $crop.")
+                            }
+                        )
+                    }
+                    com.agriia.app.core.designsystem.components.AgriiaTopTab.ANALISES -> {
+                        com.agriia.app.feature.analysis.AgronomicAnalysisScreen(
+                            onAskAnalysisInChat = { question ->
+                                viewModel.onSelectTopTab(com.agriia.app.core.designsystem.components.AgriiaTopTab.CHAT)
+                                viewModel.onSendMessage(question)
+                            }
+                        )
                     }
                 }
             }

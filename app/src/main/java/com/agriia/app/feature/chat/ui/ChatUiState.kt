@@ -1,5 +1,6 @@
 package com.agriia.app.feature.chat.ui
 
+import com.agriia.app.core.designsystem.components.AgriiaTopTab
 import com.agriia.app.feature.chat.domain.model.ChatAttachment
 import com.agriia.app.feature.chat.domain.model.ChatMessage
 import com.agriia.app.feature.chat.domain.model.Conversation
@@ -13,6 +14,7 @@ data class ChatUiState(
     val inputText: String = "",
     val isTemporaryChat: Boolean = false,
     val isStreaming: Boolean = false,
+    val selectedTopTab: AgriiaTopTab = AgriiaTopTab.CHAT,
     val showUpgradeBanner: Boolean = false,
     val showProjectsDialog: Boolean = false,
     val showArtifactsDialog: Boolean = false,

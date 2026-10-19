@@ -16,10 +16,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import com.agriia.app.core.designsystem.components.TypingIndicator
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.Image
@@ -124,22 +126,31 @@ fun MessageBubble(
                     }
                 }
 
-                Row(verticalAlignment = Alignment.Bottom) {
-                    Text(
-                        text = message.content.ifEmpty { if (message.isStreaming) "Pensando..." else "" },
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            color = if (isUser) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
-                            lineHeight = 22.sp
-                        )
+                if (!isUser && message.isStreaming && message.content.isEmpty()) {
+                    TypingIndicator(
+                        modifier = Modifier.padding(vertical = 4.dp, horizontal = 2.dp),
+                        dotColor = MaterialTheme.colorScheme.primary
                     )
-                    if (message.isStreaming) {
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Box(
-                            modifier = Modifier
-                                .size(8.dp, 16.dp)
-                                .alpha(cursorAlpha.value)
-                                .background(MaterialTheme.colorScheme.primary)
+                } else {
+                    Row(verticalAlignment = Alignment.Bottom) {
+                        Text(
+                            text = message.content,
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                color = if (isUser) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
+                                lineHeight = 22.sp
+                            )
                         )
+                        if (message.isStreaming) {
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Box(
+                                modifier = Modifier
+                                    .padding(bottom = 3.dp)
+                                    .size(7.dp)
+                                    .alpha(cursorAlpha.value)
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.primary)
+                            )
+                        }
                     }
                 }
             }

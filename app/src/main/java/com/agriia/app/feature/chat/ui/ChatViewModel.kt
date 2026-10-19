@@ -93,6 +93,10 @@ class ChatViewModel(
         }
     }
 
+    fun onSelectTopTab(tab: com.agriia.app.core.designsystem.components.AgriiaTopTab) {
+        _uiState.update { it.copy(selectedTopTab = tab) }
+    }
+
     fun onDismissToast() {
         _uiState.update { it.copy(toastMessage = null) }
     }
