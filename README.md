@@ -1,4 +1,4 @@
-# agriia - Cliente Nativo de Chat com IA para Android
+# agriia - Android
 
 **agriia** é um cliente de chat moderno e inteligente para Android construído com **Kotlin**, **Jetpack Compose** e **Material 3**, seguindo rigorosamente os padrões de **Clean Architecture** e diretrizes oficiais do Google (Guide to App Architecture).
 
