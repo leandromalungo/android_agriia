@@ -8,6 +8,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -231,17 +232,14 @@ fun ChatScreen(
                 when (uiState.selectedTopTab) {
                     com.agriia.app.core.designsystem.components.AgriiaTopTab.CHAT -> {
                         if (uiState.messages.isEmpty()) {
-                            // Estado Vazio: Saudação centralizada
+                            // Estado Vazio: Sugestões posicionadas acima do input (sem saudação ou logo)
                             Column(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .padding(horizontal = 16.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
+                                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                                verticalArrangement = Arrangement.Bottom
                             ) {
-                                Spacer(modifier = Modifier.weight(1f))
-                                GreetingHeader(userName = uiState.userName)
                                 if (uiState.isTemporaryChat) {
-                                    Spacer(modifier = Modifier.height(12.dp))
                                     Text(
                                         text = stringResource(R.string.temp_chat_enabled_hint),
                                         style = MaterialTheme.typography.labelSmall.copy(
@@ -249,10 +247,19 @@ fun ChatScreen(
                                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                                         ),
                                         textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                                        modifier = Modifier.padding(horizontal = 32.dp)
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(bottom = 12.dp)
                                     )
                                 }
-                                Spacer(modifier = Modifier.weight(1.2f))
+
+                                if (uiState.inputText.isEmpty()) {
+                                    com.agriia.app.feature.chat.ui.components.EmptyStateSuggestions(
+                                        onSelectSuggestion = { suggestion ->
+                                            viewModel.onInputTextChange(suggestion)
+                                        }
+                                    )
+                                }
                             }
                         } else {
                             // Lista de Mensagens da conversa atual

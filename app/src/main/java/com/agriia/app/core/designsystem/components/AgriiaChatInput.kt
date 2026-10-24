@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -29,16 +30,29 @@ import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material.icons.outlined.PhotoCamera
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.testTag
+import kotlinx.coroutines.delay
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -64,6 +78,59 @@ fun AgriiaChatInput(
     onRemoveAttachment: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    val phrases = remember {
+        listOf(
+            "Pergunte algo sobre sua lavoura...",
+            "Consulte adubação, pragas ou clima...",
+            "Tire dúvidas ou anexe fotos da safra...",
+            "Converse com o assistente agriia..."
+        )
+    }
+    var displayedPlaceholder by remember { mutableStateOf("") }
+
+    val cursorTransition = rememberInfiniteTransition(label = "cursor_blink")
+    val cursorAlpha by cursorTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 0f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(500, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "cursor_alpha"
+    )
+
+    LaunchedEffect(inputText) {
+        if (inputText.isNotEmpty()) {
+            displayedPlaceholder = ""
+            return@LaunchedEffect
+        }
+
+        var phraseIndex = 0
+        while (true) {
+            val currentPhrase = phrases[phraseIndex]
+
+            // 1. Vai escrevendo letra por letra
+            for (i in 1..currentPhrase.length) {
+                displayedPlaceholder = currentPhrase.substring(0, i)
+                delay(45L)
+            }
+
+            // 2. Pausa com o texto completo para leitura
+            delay(2800L)
+
+            // 3. Vai desescrevendo (apagando) letra por letra
+            for (i in currentPhrase.length downTo 0) {
+                displayedPlaceholder = currentPhrase.substring(0, i)
+                delay(20L)
+            }
+
+            // 4. Pausa breve antes da próxima frase
+            delay(350L)
+
+            phraseIndex = (phraseIndex + 1) % phrases.size
+        }
+    }
+
     Surface(
         modifier = modifier
             .fillMaxWidth()
@@ -136,14 +203,27 @@ fun AgriiaChatInput(
                 contentAlignment = Alignment.TopStart
             ) {
                 if (inputText.isEmpty()) {
-                    Text(
-                        text = stringResource(R.string.chat_input_placeholder),
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-                            fontSize = 15.sp,
-                            lineHeight = 20.sp
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = displayedPlaceholder,
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.65f),
+                                fontSize = 15.sp,
+                                lineHeight = 20.sp
+                            ),
+                            maxLines = 1
                         )
-                    )
+                        Box(
+                            modifier = Modifier
+                                .padding(start = 2.dp)
+                                .width(1.5.dp)
+                                .height(16.dp)
+                                .alpha(cursorAlpha)
+                                .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.65f))
+                        )
+                    }
                 }
                 BasicTextField(
                     value = inputText,
