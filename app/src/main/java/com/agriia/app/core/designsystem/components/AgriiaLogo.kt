@@ -5,6 +5,7 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,6 +23,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -29,6 +31,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.agriia.app.core.designsystem.LimeAccent
+import com.example.R
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -104,7 +107,7 @@ fun AgriiaIcon(
 }
 
 /**
- * Logo completo do agriia (ícone + tipografia serifada sofisticada)
+ * Logo completo do agriia (ícone PNG + tipografia serifada sofisticada)
  */
 @Composable
 fun AgriiaLogo(
@@ -113,22 +116,31 @@ fun AgriiaLogo(
     fontSize: TextUnit = 24.sp,
     textColor: Color = MaterialTheme.colorScheme.onBackground,
     showText: Boolean = true,
-    animatedIcon: Boolean = false
+    animatedIcon: Boolean = false,
+    usePng: Boolean = true
 ) {
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        AgriiaIcon(
-            size = iconSize,
-            animated = animatedIcon
-        )
+        if (usePng) {
+            Image(
+                painter = painterResource(id = R.drawable.img_agriia_logo),
+                contentDescription = "Logo Agriia",
+                modifier = Modifier.size(iconSize)
+            )
+        } else {
+            AgriiaIcon(
+                size = iconSize,
+                animated = animatedIcon
+            )
+        }
         if (showText) {
             Text(
-                text = "agriia",
+                text = "Agriia",
                 fontFamily = FontFamily.Serif,
-                fontWeight = FontWeight.Medium,
+                fontWeight = FontWeight.SemiBold,
                 fontSize = fontSize,
                 color = textColor,
                 letterSpacing = (-0.5).sp

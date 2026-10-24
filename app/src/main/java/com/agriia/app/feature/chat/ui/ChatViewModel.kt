@@ -39,6 +39,21 @@ class ChatViewModel(
             }
         }
         viewModelScope.launch {
+            userPreferencesRepository.userEmailFlow.collect { email ->
+                _uiState.update { it.copy(userEmail = email) }
+            }
+        }
+        viewModelScope.launch {
+            userPreferencesRepository.farmNameFlow.collect { farm ->
+                _uiState.update { it.copy(farmName = farm) }
+            }
+        }
+        viewModelScope.launch {
+            userPreferencesRepository.userPhotoUrlFlow.collect { photoUrl ->
+                _uiState.update { it.copy(userPhotoUrl = photoUrl) }
+            }
+        }
+        viewModelScope.launch {
             userPreferencesRepository.currentModelFlow.collect { model ->
                 _uiState.update { it.copy(currentModelName = model) }
             }
@@ -152,6 +167,37 @@ class ChatViewModel(
 
     fun onShowMapDialog(show: Boolean) {
         _uiState.update { it.copy(showMapDialog = show) }
+    }
+
+    fun onShowSettingsScreen(show: Boolean) {
+        _uiState.update { it.copy(showSettingsScreen = show) }
+    }
+
+    fun onShowNotificationsScreen(show: Boolean) {
+        _uiState.update { it.copy(showNotificationsScreen = show) }
+    }
+
+    fun onShowProfileConfigDialog(show: Boolean) {
+        _uiState.update { it.copy(showProfileConfigDialog = show) }
+    }
+
+    fun onSaveProfile(name: String, email: String, farm: String, photoUrl: String = "") {
+        viewModelScope.launch {
+            userPreferencesRepository.updateUserName(name)
+            userPreferencesRepository.updateUserEmail(email)
+            userPreferencesRepository.updateFarmName(farm)
+            userPreferencesRepository.updateUserPhotoUrl(photoUrl)
+            _uiState.update {
+                it.copy(
+                    userName = name,
+                    userEmail = email,
+                    userPhotoUrl = photoUrl,
+                    farmName = farm,
+                    showProfileConfigDialog = false,
+                    toastMessage = "Perfil atualizado com sucesso"
+                )
+            }
+        }
     }
 
     fun onShowRealtimeVoiceModal(show: Boolean) {

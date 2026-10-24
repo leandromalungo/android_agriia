@@ -53,7 +53,10 @@ import com.agriia.app.feature.chat.ui.components.MapSelectorDialog
 import com.agriia.app.feature.chat.ui.components.MessageBubble
 import com.agriia.app.feature.chat.ui.components.ModelSelectorDialog
 import com.agriia.app.feature.drawer.DrawerContent
+import com.agriia.app.feature.notifications.NotificationsScreen
 import com.agriia.app.feature.projects.ProjectsDialog
+import com.agriia.app.feature.settings.ProfileDialog
+import com.agriia.app.feature.settings.SettingsScreen
 import com.example.R
 import kotlinx.coroutines.launch
 
@@ -144,37 +147,62 @@ fun ChatScreen(
         }
     }
 
-    ModalNavigationDrawer(
-        drawerState = drawerState,
-        scrimColor = androidx.compose.ui.graphics.Color(0x15000000),
-        drawerContent = {
-            DrawerContent(
-                conversations = uiState.conversations,
-                currentConversationId = uiState.currentConversationId,
-                userName = uiState.userName,
-                searchQuery = uiState.searchQuery,
-                onSearchQueryChange = viewModel::onSearchQueryChange,
-                onSelectConversation = { convId ->
-                    viewModel.onSelectConversation(convId)
-                },
-                onDeleteConversation = { convId ->
-                    viewModel.onDeleteConversation(convId)
-                },
-                onNewChatClick = {
-                    viewModel.onStartNewChat()
-                },
-                onCreateProjectClick = {
-                    viewModel.onShowProjectsDialog(true)
-                },
-                onArtifactsClick = {
-                    viewModel.onShowArtifactsDialog(true)
-                },
-                onCloseDrawer = {
-                    scope.launch { drawerState.close() }
-                }
-            )
+    if (uiState.showNotificationsScreen) {
+        BackHandler {
+            viewModel.onShowNotificationsScreen(false)
         }
-    ) {
+        NotificationsScreen(
+            onBackClick = { viewModel.onShowNotificationsScreen(false) }
+        )
+    } else if (uiState.showSettingsScreen) {
+        BackHandler {
+            viewModel.onShowSettingsScreen(false)
+        }
+        SettingsScreen(
+            userName = uiState.userName,
+            userEmail = uiState.userEmail,
+            farmName = uiState.farmName,
+            onBackClick = { viewModel.onShowSettingsScreen(false) },
+            onOpenProfileClick = { viewModel.onShowProfileConfigDialog(true) },
+            onOpenNotificationsClick = { viewModel.onShowNotificationsScreen(true) }
+        )
+    } else {
+        ModalNavigationDrawer(
+            drawerState = drawerState,
+            scrimColor = androidx.compose.ui.graphics.Color(0x15000000),
+            drawerContent = {
+                DrawerContent(
+                    conversations = uiState.conversations,
+                    currentConversationId = uiState.currentConversationId,
+                    userName = uiState.userName,
+                    userEmail = uiState.userEmail,
+                    userPhotoUrl = uiState.userPhotoUrl,
+                    searchQuery = uiState.searchQuery,
+                    onSearchQueryChange = viewModel::onSearchQueryChange,
+                    onSelectConversation = { convId ->
+                        viewModel.onSelectConversation(convId)
+                    },
+                    onDeleteConversation = { convId ->
+                        viewModel.onDeleteConversation(convId)
+                    },
+                    onNewChatClick = {
+                        viewModel.onStartNewChat()
+                    },
+                    onCreateProjectClick = {
+                        viewModel.onShowProjectsDialog(true)
+                    },
+                    onNotificationsClick = {
+                        viewModel.onShowNotificationsScreen(true)
+                    },
+                    onOpenSettings = {
+                        viewModel.onShowSettingsScreen(true)
+                    },
+                    onCloseDrawer = {
+                        scope.launch { drawerState.close() }
+                    }
+                )
+            }
+        ) {
         Scaffold(
             modifier = modifier
                 .fillMaxSize()
@@ -295,6 +323,7 @@ fun ChatScreen(
             }
         }
     }
+}
 
     // Modal Bottom Sheet de Anexos (+ clicado)
     if (uiState.showAttachmentSheet) {
@@ -373,6 +402,19 @@ fun ChatScreen(
             onFinishWithTranscript = { transcript ->
                 viewModel.onSendMessage(transcript)
             }
+        )
+    }
+
+    if (uiState.showProfileConfigDialog) {
+        ProfileDialog(
+            initialName = uiState.userName,
+            initialEmail = uiState.userEmail,
+            initialFarm = uiState.farmName,
+            initialPhotoUrl = uiState.userPhotoUrl,
+            onSave = { name, email, farm, photoUrl ->
+                viewModel.onSaveProfile(name, email, farm, photoUrl)
+            },
+            onDismiss = { viewModel.onShowProfileConfigDialog(false) }
         )
     }
 }

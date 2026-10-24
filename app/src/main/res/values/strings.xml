@@ -14,8 +14,9 @@
     <string name="nav_conversations">Conversas</string>
     <string name="nav_create_project">Criar projeto</string>
     <string name="nav_artifacts">Artefatos</string>
+    <string name="nav_notifications">Notificações</string>
     <string name="nav_recent">Recentes</string>
-    <string name="nav_new_chat">Novo bate-papo</string>
+    <string name="nav_new_chat">Criar nova conversa</string>
     <string name="menu_content_description">Abrir menu lateral</string>
     <string name="temp_chat_content_description">Bate-papo temporário</string>
     <string name="attach_content_description">Anexar arquivo ou imagem</string>

@@ -1,6 +1,8 @@
 package com.agriia.app.feature.drawer
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -8,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -25,6 +28,7 @@ import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
 import androidx.compose.material.icons.outlined.FolderSpecial
 import androidx.compose.material.icons.outlined.Inventory2
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Widgets
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -32,11 +36,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -50,6 +58,7 @@ import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.IconButton
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
+import coil.compose.SubcomposeAsyncImage
 import com.agriia.app.core.designsystem.PillButtonShape
 import com.agriia.app.core.designsystem.components.AgriiaLogo
 import com.agriia.app.feature.chat.domain.model.Conversation
@@ -60,13 +69,17 @@ fun DrawerContent(
     conversations: List<Conversation>,
     currentConversationId: String?,
     userName: String,
+    userEmail: String = "",
+    userPhotoUrl: String = "",
     searchQuery: String = "",
     onSearchQueryChange: (String) -> Unit = {},
     onSelectConversation: (String) -> Unit,
     onDeleteConversation: ((String) -> Unit)? = null,
     onNewChatClick: () -> Unit,
     onCreateProjectClick: () -> Unit,
-    onArtifactsClick: () -> Unit,
+    onArtifactsClick: () -> Unit = {},
+    onNotificationsClick: () -> Unit = {},
+    onOpenSettings: () -> Unit = {},
     onCloseDrawer: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -83,32 +96,135 @@ fun DrawerContent(
                 .statusBarsPadding()
                 .navigationBarsPadding()
         ) {
-            // Cabeçalho da Drawer com Logo "agriia"
+            // Cabeçalho da Drawer: Logo da App (PNG) + Nome Agriia à esquerda e Ícone de Perfil no canto direito
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp, vertical = 20.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    .padding(horizontal = 18.dp, vertical = 14.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(
-                    text = "agriia",
-                    fontFamily = FontFamily.Serif,
-                    fontWeight = FontWeight.Normal,
-                    fontSize = 24.sp,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
+                // Logo PNG da App + Palavra Agriia
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.img_agriia_logo),
+                        contentDescription = "Logo da APP Agriia",
+                        modifier = Modifier
+                            .size(26.dp)
+                            .testTag("drawer_app_logo")
+                    )
+                    Text(
+                        text = "Agriia",
+                        fontFamily = FontFamily.Serif,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 22.sp,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+
+                // Ícone de perfil no canto com borda bem fina cinza e imagem do perfil do usuário
+                val userInitial = userName.trim().firstOrNull()?.uppercaseChar()?.toString() ?: "U"
+                val avatarUrl = remember(userEmail, userPhotoUrl) {
+                    if (userPhotoUrl.isNotBlank()) {
+                        userPhotoUrl
+                    } else if (userEmail.isNotBlank()) {
+                        val clean = userEmail.trim().lowercase()
+                        val md5 = try {
+                            val md = java.security.MessageDigest.getInstance("MD5")
+                            val bytes = md.digest(clean.toByteArray(Charsets.UTF_8))
+                            bytes.joinToString("") { "%02x".format(it) }
+                        } catch (e: Exception) {
+                            ""
+                        }
+                        if (md5.isNotEmpty()) {
+                            "https://www.gravatar.com/avatar/$md5?d=identicon&s=160"
+                        } else ""
+                    } else ""
+                }
+
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .border(
+                            width = 0.8.dp,
+                            color = Color(0xFFD1D5DB), // Borda bem fina cinza para destacar a foto de perfil
+                            shape = CircleShape
+                        )
+                        .clickable {
+                            onCloseDrawer()
+                            onOpenSettings()
+                        }
+                        .testTag("drawer_profile_avatar"),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (avatarUrl.isNotBlank()) {
+                        SubcomposeAsyncImage(
+                            model = avatarUrl,
+                            contentDescription = "Foto de perfil de $userName",
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clip(CircleShape),
+                            contentScale = ContentScale.Crop,
+                            loading = {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = userInitial,
+                                        style = MaterialTheme.typography.titleMedium.copy(
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    )
+                                }
+                            },
+                            error = {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = userInitial,
+                                        style = MaterialTheme.typography.titleMedium.copy(
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    )
+                                }
+                            }
+                        )
+                    } else {
+                        Text(
+                            text = userInitial,
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        )
+                    }
+                }
             }
 
             // Itens de Navegação Principais
-            Column(modifier = Modifier.padding(horizontal = 12.dp)) {
+            Column(
+                modifier = Modifier.padding(horizontal = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                // "Criar nova conversa" sem background preto, com mesmo estilo de "Notificações"
                 DrawerMenuItem(
-                    icon = Icons.Outlined.ChatBubbleOutline,
-                    label = stringResource(R.string.nav_conversations),
+                    icon = Icons.Default.Add,
+                    label = "Criar nova conversa",
                     onClick = {
                         onNewChatClick()
                         onCloseDrawer()
                     },
-                    testTag = "drawer_item_conversations"
+                    testTag = "drawer_new_chat_button"
                 )
                 DrawerMenuItem(
                     icon = Icons.Outlined.FolderSpecial,
@@ -120,13 +236,13 @@ fun DrawerContent(
                     testTag = "drawer_item_create_project"
                 )
                 DrawerMenuItem(
-                    icon = Icons.Outlined.Widgets,
-                    label = stringResource(R.string.nav_artifacts),
+                    icon = Icons.Outlined.Notifications,
+                    label = stringResource(R.string.nav_notifications),
                     onClick = {
-                        onArtifactsClick()
+                        onNotificationsClick()
                         onCloseDrawer()
                     },
-                    testTag = "drawer_item_artifacts"
+                    testTag = "drawer_item_notifications"
                 )
             }
 
@@ -269,72 +385,7 @@ fun DrawerContent(
                 }
             }
 
-            HorizontalDivider(
-                modifier = Modifier.padding(horizontal = 20.dp),
-                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
-                thickness = 0.5.dp
-            )
-
-            // Rodapé do Drawer: Avatar + Botão "Novo bate-papo" + Ícone de voz
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 18.dp, vertical = 14.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                // Avatar circular com a primeira letra do usuário
-                val userInitial = userName.trim().firstOrNull()?.uppercaseChar()?.toString() ?: "U"
-                Box(
-                    modifier = Modifier
-                        .size(38.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surfaceVariant),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = userInitial,
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(12.dp))
-
-                // Botão "Novo bate-papo" em pílula preta com texto branco
-                Row(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clip(PillButtonShape)
-                        .background(MaterialTheme.colorScheme.primary)
-                        .clickable(onClick = {
-                            onNewChatClick()
-                            onCloseDrawer()
-                        })
-                        .padding(horizontal = 16.dp, vertical = 10.dp)
-                        .testTag("drawer_new_chat_button"),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = stringResource(R.string.nav_new_chat),
-                        style = MaterialTheme.typography.labelLarge.copy(
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            fontSize = 13.sp
-                        )
-                    )
-                }
-            }
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
